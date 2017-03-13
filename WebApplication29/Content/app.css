@@ -1,0 +1,51 @@
+﻿.customButtonBar {
+    border: 1px solid #c2c2c2;
+    width: 100%;
+    height: 28px;
+}
+
+.ck-button, #fontSize {
+    margin: 2px;
+    background-color: #EFEFEF;
+    border-radius: 2px;
+    border: 1px solid #D0D0D0;
+    overflow: auto;
+    float: left;
+}
+
+.ck-button label {
+    float: left;
+    width: 4.0em;
+    margin-bottom: 0px;
+}
+
+#fontSize {
+    height: 22px;
+    width: 5.0em;
+}
+
+.ck-button label span {
+    text-align: center;
+    padding: 0px 0px;
+    display: block;
+    border-radius: 2px;
+}
+
+.ck-button label input {
+    position: absolute;
+    top: -20px;
+}
+
+.ck-button input:hover + span {
+    background-color: #efE0E0;    
+}
+
+.ck-button input:checked + span {
+    background-color: #911;
+    color: #fff;
+}
+
+.ck-button input:checked:hover + span {
+    background-color: #c11;
+    color: #fff;    
+}
