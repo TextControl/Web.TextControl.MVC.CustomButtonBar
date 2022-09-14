@@ -25,8 +25,6 @@
 @Html.TXTextControl().TextControl().Render()
 
 <script>
-    TXTextControl.enableCommands();
-
     // hide the ribbon bar
     TXTextControl.addEventListener("ribbonTabsLoaded", function (e) {
         $("#ribbonbar").hide();
@@ -37,43 +35,30 @@
 
     // attach event listener to receive all input format changes
     // notifications
-    document.addEventListener("inputFormatReceived", function (e) {
-        var msg = e.detail;
-
-        // process "Bold", "Italic" and "FontSize"
-        if (msg.hasOwnProperty("Bold"))
-            inputFormatChanged(TXTextControl.InputFormatProperty.Bold, msg.Bold);
-        if (msg.hasOwnProperty("Italic"))
-            inputFormatChanged(TXTextControl.InputFormatProperty.Italic, msg.Italic);
-        if (msg.hasOwnProperty("FontSize"))
-            inputFormatChanged(TXTextControl.InputFormatProperty.FontSize, msg.FontSize);
+    TXTextControl.addEventListener("textControlLoaded", function (e) {
+        // these events are fired, if the format at the current
+        // input position is changed
+        TXTextControl.inputFormat.addEventListener("boldChanged", boldChangedHandler);
+        TXTextControl.inputFormat.addEventListener("italicChanged", italicChangedHandler);
+        TXTextControl.inputFormat.addEventListener("fontSizeChanged", fontSizeChangedHandler);
     });
 
-    // process received format options
-    function inputFormatChanged(id, value, stringValue) {
-        switch (id) {
-            // handle the "Bold" button
-            case TXTextControl.InputFormatProperty.Bold:
-                if (value == true) 
-                    $("#bold").prop("checked", true);
-                else 
-                    $("#bold").prop("checked", false);             
-                break;
+    // handle the "Bold" button
+    function boldChangedHandler(e) {
+        var value = e.newValue;
+        $("#bold").prop("checked", value);
+    }
 
-            // handle the "Italic" button
-            case TXTextControl.InputFormatProperty.Italic:
-                if (value == true) 
-                    $("#italic").prop("checked", true);
-                else
-                    $("#italic").prop("checked", false);
-                break;
+    // handle the "Italic" button
+    function italicChangedHandler(e) {
+        var value = e.newValue;
+        $("#italic").prop("checked", value);
+    }
 
-            // handle the "FontSize" option list
-            case TXTextControl.InputFormatProperty.FontSize:
-                value = value || 0;
-                selectDropDownEntry("fontSize", value);
-                break;
-        }
+    // handle the "FontSize" option list
+    function fontSizeChangedHandler(e) {
+        var value = e.newValue || 0;;
+        selectDropDownEntry("fontSize", value);
     }
 
     // find and select the option of a select element
@@ -84,7 +69,7 @@
         if (elem.tagName !== "SELECT") return;
         for (var i = 0; i < elem.options.length; ++i) {
             var opt = elem.options[i];
-            if (Number(opt.value) === Number(value)) {
+            if (Number(opt.value)/20 === value) {
                 opt.selected = true;
                 break;
             }
@@ -95,11 +80,9 @@
     $("#bold").click(function () {
         // send command to enable/disable bold for current selection
         if ($("#bold").prop("checked"))
-            TXTextControl.sendCommand(TXTextControl.Command.InputFormat,
-                TXTextControl.InputFormatProperty.Bold, 1);
+            TXTextControl.inputFormat.setBold(true);
         else 
-            TXTextControl.sendCommand(TXTextControl.Command.InputFormat,
-                TXTextControl.InputFormatProperty.Bold, 0);
+                TXTextControl.inputFormat.setBold(false);
 
         TXTextControl.focus();
     });
@@ -108,11 +91,9 @@
     $("#italic").click(function () {
         // send command to enable/disable italic for current selection
         if ($("#italic").prop("checked"))
-            TXTextControl.sendCommand(TXTextControl.Command.InputFormat,
-                TXTextControl.InputFormatProperty.Italic, 1);
+            TXTextControl.inputFormat.setItalic(true);
         else 
-            TXTextControl.sendCommand(TXTextControl.Command.InputFormat,
-                TXTextControl.InputFormatProperty.Italic, 0);
+            TXTextControl.inputFormat.setItalic(false);
 
         TXTextControl.focus();
     });
@@ -123,8 +104,7 @@
         var size = Number(e.options[e.selectedIndex].value / 20);
 
         // set the font size to the current selection
-        TXTextControl.sendCommand(TXTextControl.Command.InputFormat,
-            TXTextControl.InputFormatProperty.FontSize, size);
+        TXTextControl.inputFormat.setFontSize(size);
 
         TXTextControl.focus();
     });
